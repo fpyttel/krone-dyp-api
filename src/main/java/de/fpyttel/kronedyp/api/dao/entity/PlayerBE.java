@@ -1,4 +1,4 @@
-package de.fpyttel.kronedyp.backend.model;
+package de.fpyttel.kronedyp.api.dao.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "playerlist")
-public class Player {
+public class PlayerBE {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -20,9 +20,9 @@ public class Player {
 	
 	private String nachname;
 
-	public Player(){}
+	public PlayerBE(){}
 	
-	public Player(long id, String username, String vorname, String nachname) {
+	public PlayerBE(long id, String username, String vorname, String nachname) {
 		super();
 		this.id = id;
 		this.username = username;

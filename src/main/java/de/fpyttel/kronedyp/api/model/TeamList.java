@@ -1,4 +1,4 @@
-package de.fpyttel.kronedyp.backend.model;
+package de.fpyttel.kronedyp.api.model;
 
 import java.util.ArrayList;
 import java.util.Collections;

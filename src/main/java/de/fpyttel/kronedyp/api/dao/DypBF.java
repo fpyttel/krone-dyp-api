@@ -1,4 +1,4 @@
-package de.fpyttel.kronedyp.backend.dao;
+package de.fpyttel.kronedyp.api.dao;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,22 +9,23 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
-import de.fpyttel.kronedyp.backend.entity.Dyp;
-import de.fpyttel.kronedyp.backend.entity.DypPlayer;
-import de.fpyttel.kronedyp.backend.entity.DypResult;
-import de.fpyttel.kronedyp.backend.entity.DypTeam;
-import de.fpyttel.kronedyp.backend.model.Team;
-import de.fpyttel.kronedyp.backend.model.TeamList;
+import de.fpyttel.kronedyp.api.entity.dyp.Dyp;
+import de.fpyttel.kronedyp.api.entity.dyp.DypPlayer;
+import de.fpyttel.kronedyp.api.entity.dyp.DypResult;
+import de.fpyttel.kronedyp.api.entity.dyp.DypTeam;
+import de.fpyttel.kronedyp.api.model.Team;
+import de.fpyttel.kronedyp.api.model.TeamList;
 
-@Repository
+@Component
 public class DypBF {
 
 	@Autowired
 	private EntityManager entityManager;
 
-	public Dyp getDyp(long id) {
+	public Dyp getDyp(int id) {
 		Query q = entityManager.createNativeQuery(
 				"SELECT  t.platz, p.vorname, p.nachname, t.punkte, t.spielerid, s.skill FROM playerlist as p, zzz_easy_tabelle t, uskillzlist as s WHERE t.turnierid = :dypId AND t.spielerid = p.id AND s.userid = p.id AND s.spielid = 11 ORDER BY t.platz, t.teamid");
 		q.setParameter("dypId", id);

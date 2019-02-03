@@ -1,4 +1,4 @@
-package de.fpyttel.kronedyp.backend.repo;
+package de.fpyttel.kronedyp.api.repo;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -18,12 +18,12 @@ import org.springframework.stereotype.Repository;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import de.fpyttel.kronedyp.backend.data.Cell;
-import de.fpyttel.kronedyp.backend.data.Column;
-import de.fpyttel.kronedyp.backend.data.DataTable;
-import de.fpyttel.kronedyp.backend.data.Row;
-import de.fpyttel.kronedyp.backend.model.Team;
-import de.fpyttel.kronedyp.backend.model.TeamList;
+import de.fpyttel.kronedyp.api.googlecharts.data.Cell;
+import de.fpyttel.kronedyp.api.googlecharts.data.Column;
+import de.fpyttel.kronedyp.api.googlecharts.data.DataTable;
+import de.fpyttel.kronedyp.api.googlecharts.data.Row;
+import de.fpyttel.kronedyp.api.model.Team;
+import de.fpyttel.kronedyp.api.model.TeamList;
 
 @Repository
 public class DypDao {

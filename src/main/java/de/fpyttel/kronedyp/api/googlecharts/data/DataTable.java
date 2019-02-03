@@ -1,4 +1,4 @@
-package de.fpyttel.kronedyp.backend.data;
+package de.fpyttel.kronedyp.api.googlecharts.data;
 
 import java.util.ArrayList;
 import java.util.List;

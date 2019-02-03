@@ -1,4 +1,4 @@
-package de.fpyttel.kronedyp.backend.rest;
+package de.fpyttel.kronedyp.api.rest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.fpyttel.kronedyp.backend.model.Player;
-import de.fpyttel.kronedyp.backend.repo.DypDao;
-import de.fpyttel.kronedyp.backend.repo.PlayerRepository;
+import de.fpyttel.kronedyp.api.dao.entity.PlayerBE;
+import de.fpyttel.kronedyp.api.repo.DypDao;
+import de.fpyttel.kronedyp.api.repo.PlayerRepository;
 
 @RestController
 @EnableAutoConfiguration
-public class PlayerController {
+public class PlayerControllerOld {
 
 	@Autowired
 	private PlayerRepository playerRepository;
@@ -33,7 +33,7 @@ public class PlayerController {
 	@RequestMapping("/player")
     @ResponseBody
     String player(@RequestParam(value="id", required=true) long id) {
-		Player p = playerRepository.findById(id).get();
+		PlayerBE p = playerRepository.findById(id).get();
 		if( p != null ){
 			return p.toString();
 		}

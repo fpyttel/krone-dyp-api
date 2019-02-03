@@ -1,4 +1,4 @@
-package de.fpyttel.kronedyp.backend;
+package de.fpyttel.kronedyp.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,10 +12,10 @@ import org.springframework.core.io.ClassPathResource;
 
 @SpringBootApplication
 @EnableCaching
-public class Main {
+public class Application {
 
 	public static void main(String[] args) {
-		ApplicationContext context = SpringApplication.run(Main.class, args);
+		ApplicationContext context = SpringApplication.run(Application.class, args);
 	}
 	
 	@Bean

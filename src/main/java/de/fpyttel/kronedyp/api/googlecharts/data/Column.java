@@ -1,4 +1,4 @@
-package de.fpyttel.kronedyp.backend.data;
+package de.fpyttel.kronedyp.api.googlecharts.data;
 
 public class Column {
 	public String id; // id of column

@@ -1,4 +1,4 @@
-package de.fpyttel.kronedyp.backend.entity;
+package de.fpyttel.kronedyp.api.entity.dyp;
 
 public class DypPlayer {
 
