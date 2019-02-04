@@ -29,7 +29,6 @@ public class PlayerController {
 	@ResponseBody
 	String getPlayer(@PathVariable("playerId") Integer playerId, HttpServletResponse response,
 			HttpServletRequest request) {
-		response.addHeader("Access-Control-Allow-Origin", "*");
 		return gson.toJson(playerBF.getPlayer(playerId));
 	}
 
@@ -37,7 +36,6 @@ public class PlayerController {
 	@ResponseBody
 	String getPositions(@PathVariable("playerId") Integer playerId, HttpServletResponse response,
 			HttpServletRequest request) {
-		response.addHeader("Access-Control-Allow-Origin", "*");
 		return gson.toJson(playerBF.getPositions(playerId, request.getLocale()));
 	}
 
@@ -45,7 +43,6 @@ public class PlayerController {
 	@ResponseBody
 	String getEloHistory(@PathVariable("playerId") Integer playerId, HttpServletResponse response,
 			HttpServletRequest request) {
-		response.addHeader("Access-Control-Allow-Origin", "*");
 		return gson.toJson(playerBF.getEloHistory(playerId));
 	}
 	
@@ -53,7 +50,6 @@ public class PlayerController {
 	@ResponseBody
 	String getPositionHistory(@PathVariable("playerId") Integer playerId, HttpServletResponse response,
 			HttpServletRequest request) {
-		response.addHeader("Access-Control-Allow-Origin", "*");
 		return gson.toJson(playerBF.getPositionsHistory(playerId));
 	}
 	
@@ -61,7 +57,6 @@ public class PlayerController {
 	@ResponseBody
 	String getTeammates(@PathVariable("playerId") Integer playerId, HttpServletResponse response,
 			HttpServletRequest request) {
-		response.addHeader("Access-Control-Allow-Origin", "*");
 		return gson.toJson(playerBF.getTeammates(playerId));
 	}
 }
