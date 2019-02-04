@@ -23,7 +23,7 @@ public class PlayerController {
 	@Autowired
 	private PlayerBF playerBF;
 
-	private Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+	private Gson gson = new GsonBuilder().serializeNulls().create();
 
 	@RequestMapping(value = "/{playerId}", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
 	@ResponseBody

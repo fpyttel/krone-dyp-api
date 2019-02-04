@@ -21,7 +21,7 @@ public class DypController {
 	@Autowired
 	private DypBF dypBF;
 
-	private Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+	private Gson gson = new GsonBuilder().serializeNulls().create();
 
 	@RequestMapping(value = "/{dypId}", produces = "application/json;charset=UTF-8")
 	@ResponseBody
