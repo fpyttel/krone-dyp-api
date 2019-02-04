@@ -12,12 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
-import de.fpyttel.kronedyp.api.entity.dyp.Dyp;
-import de.fpyttel.kronedyp.api.entity.dyp.DypPlayer;
-import de.fpyttel.kronedyp.api.entity.dyp.DypResult;
-import de.fpyttel.kronedyp.api.entity.dyp.DypTeam;
-import de.fpyttel.kronedyp.api.model.Team;
-import de.fpyttel.kronedyp.api.model.TeamList;
+import de.fpyttel.kronedyp.api.model.dyp.Dyp;
+import de.fpyttel.kronedyp.api.model.dyp.DypPlayer;
+import de.fpyttel.kronedyp.api.model.dyp.DypResult;
+import de.fpyttel.kronedyp.api.model.dyp.DypTeam;
+import de.fpyttel.kronedyp.api.model.team.Team;
+import de.fpyttel.kronedyp.api.model.team.TeamList;
 
 @Component
 public class DypBF {

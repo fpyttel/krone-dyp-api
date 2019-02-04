@@ -1,4 +1,4 @@
-package de.fpyttel.kronedyp.api.googlecharts.data;
+package de.fpyttel.kronedyp.api.model.googlecharts;
 
 public class Cell {
 	public Object v; // value of cell

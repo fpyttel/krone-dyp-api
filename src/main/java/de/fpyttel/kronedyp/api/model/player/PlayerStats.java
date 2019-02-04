@@ -1,4 +1,4 @@
-package de.fpyttel.kronedyp.api.entity.player;
+package de.fpyttel.kronedyp.api.model.player;
 
 import java.io.Serializable;
 

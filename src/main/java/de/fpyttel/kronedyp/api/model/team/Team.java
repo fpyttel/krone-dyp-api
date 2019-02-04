@@ -1,4 +1,4 @@
-package de.fpyttel.kronedyp.api.model;
+package de.fpyttel.kronedyp.api.model.team;
 
 public class Team implements Comparable<Team>{
 
