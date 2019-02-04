@@ -26,7 +26,7 @@ public class PlayerBF {
 	@Autowired
 	private EntityManager entityManager;
 
-	//@Cacheable("playerInfo")
+	@Cacheable("playerInfo")
 	public Player getPlayer(int playerId) {
 		// fetch base data
 		Query q = entityManager.createNamedQuery("Player.getInfo");
