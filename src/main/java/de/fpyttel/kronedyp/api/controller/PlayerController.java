@@ -38,7 +38,7 @@ public class PlayerController {
 	String getPositions(@PathVariable("playerId") Integer playerId, HttpServletResponse response,
 			HttpServletRequest request) {
 		response.addHeader("Access-Control-Allow-Origin", "*");
-		return gson.toJson(playerBF.getPlayerPositions(playerId, request.getLocale()));
+		return gson.toJson(playerBF.getPositions(playerId, request.getLocale()));
 	}
 
 	@RequestMapping(value = "/{playerId}/eloHistory", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
@@ -46,7 +46,7 @@ public class PlayerController {
 	String getEloHistory(@PathVariable("playerId") Integer playerId, HttpServletResponse response,
 			HttpServletRequest request) {
 		response.addHeader("Access-Control-Allow-Origin", "*");
-		return gson.toJson(playerBF.getPlayerEloHistory(playerId));
+		return gson.toJson(playerBF.getEloHistory(playerId));
 	}
 	
 	@RequestMapping(value = "/{playerId}/positionsHistory", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
@@ -54,6 +54,14 @@ public class PlayerController {
 	String getPositionHistory(@PathVariable("playerId") Integer playerId, HttpServletResponse response,
 			HttpServletRequest request) {
 		response.addHeader("Access-Control-Allow-Origin", "*");
-		return gson.toJson(playerBF.getPlayerPositionsHistory(playerId));
+		return gson.toJson(playerBF.getPositionsHistory(playerId));
+	}
+	
+	@RequestMapping(value = "/{playerId}/teammates", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
+	@ResponseBody
+	String getTeammates(@PathVariable("playerId") Integer playerId, HttpServletResponse response,
+			HttpServletRequest request) {
+		response.addHeader("Access-Control-Allow-Origin", "*");
+		return gson.toJson(playerBF.getTeammates(playerId));
 	}
 }

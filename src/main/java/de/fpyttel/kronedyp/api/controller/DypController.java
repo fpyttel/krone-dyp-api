@@ -32,7 +32,7 @@ public class DypController {
 
 	@RequestMapping(value = "/list", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	String listDyps(HttpServletResponse response, HttpServletRequest request) {
+	String getDypList(HttpServletResponse response, HttpServletRequest request) {
 		response.addHeader("Access-Control-Allow-Origin", "*");
 		return gson.toJson(dypBF.getDypList());
 	}

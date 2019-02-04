@@ -2,8 +2,12 @@ package de.fpyttel.kronedyp.api.dao;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -14,10 +18,7 @@ import org.springframework.stereotype.Component;
 
 import de.fpyttel.kronedyp.api.entity.player.Player;
 import de.fpyttel.kronedyp.api.entity.player.PlayerStats;
-import de.fpyttel.kronedyp.api.googlecharts.data.Cell;
-import de.fpyttel.kronedyp.api.googlecharts.data.Column;
-import de.fpyttel.kronedyp.api.googlecharts.data.DataTable;
-import de.fpyttel.kronedyp.api.googlecharts.data.Row;
+import de.fpyttel.kronedyp.api.entity.player.Teammate;
 
 @Component
 public class PlayerBF {
@@ -72,7 +73,7 @@ public class PlayerBF {
 	}
 	
 	@Cacheable("positions")
-	public List<Object[]> getPlayerPositions(int playerId, Locale locale) {
+	public List<Object[]> getPositions(int playerId, Locale locale) {
 		// fetch data
 		Query q = entityManager
 				.createNativeQuery("SELECT platz, count(platz) FROM zzz_easy_tabelle WHERE spielerid = :playerId GROUP BY platz");
@@ -95,7 +96,7 @@ public class PlayerBF {
 	}
 	
 	@Cacheable("eloHistory")
-	public List<Object[]> getPlayerEloHistory(int playerId) {
+	public List<Object[]> getEloHistory(int playerId) {
 		// fetch data
 		Query q = entityManager
 				.createNativeQuery("SELECT skillzuwachs FROM resultlist as r, teammates as tm, turnierlist as t WHERE ((r.teamid0 = tm.teamid AND r.teamid1 != -1) OR (r.teamid1 = tm.teamid AND r.teamid0 != -1)) AND tm.mateid = :playerId AND r.turnierid = t.id AND t.turnierspielid = 11 ORDER BY r.id");
@@ -130,7 +131,7 @@ public class PlayerBF {
 	}
 	
 	@Cacheable("positionsHistory")
-	public List<Object[]> getPlayerPositionsHistory(int playerId) {
+	public List<Object[]> getPositionsHistory(int playerId) {
 		// fetch data
 		Query q = entityManager
 				.createNativeQuery("SELECT turnierid, platz FROM zzz_easy_tabelle WHERE spielerid = :playerId ORDER BY turnierid");
@@ -149,6 +150,65 @@ public class PlayerBF {
 		}
 
 		return positionList;
+	}
+	
+	@Cacheable("listAllPartner")
+	public List<Teammate> getTeammates(int playerId){
+		// fetch data
+		Query qWin = entityManager
+				.createNativeQuery("SELECT p.vorname, p.nachname, tm1.mateid, COUNT(tm1.mateid) as wincount FROM teammates as tm1, playerlist as p, (SELECT tm.teamid as winteam FROM resultlist as r, teammates as tm WHERE ((r.teamid0 = tm.teamid AND r.teamid1 != -1) OR (r.teamid1 = tm.teamid AND r.teamid0 != -1)) AND tm.mateid = :playerId AND winnerid = tm.teamid ORDER BY r.id) as win WHERE tm1.mateid != :playerId AND win.winteam = tm1.teamid AND p.id = tm1.mateid GROUP BY tm1.mateid ORDER BY wincount DESC");
+		qWin.setParameter("playerId", playerId);
+		Query qDefeat = entityManager
+				.createNativeQuery("SELECT p.vorname, p.nachname, tm1.mateid, COUNT(tm1.mateid) as defeatcount FROM teammates as tm1, playerlist as p, ( SELECT tm.teamid as defeatteam FROM resultlist as r, teammates as tm WHERE ((r.teamid0 = tm.teamid AND r.teamid1 != -1) OR (r.teamid1 = tm.teamid AND r.teamid0 != -1)) AND tm.mateid = :playerId AND winnerid != tm.teamid ORDER BY r.id) as defeat WHERE tm1.mateid != :playerId AND defeat.defeatteam = tm1.teamid AND p.id = tm1.mateid GROUP BY tm1.mateid ORDER BY defeatcount DESC");
+		qDefeat.setParameter("playerId", playerId);
+		List<Object[]> retWin = qWin.getResultList();
+		List<Object[]> retDefeat = qDefeat.getResultList();
+
+		// create model
+		List<Teammate> teammates = new ArrayList<>();
+
+		// prepare data
+		Map<Integer, Integer> mapDefeat = new HashMap<>();
+		Map<Integer, String[]> mapName = new HashMap<>();
+		for (Object[] row : retDefeat) {
+			String firstName = (String) row[0];
+			String lastName = (String) row[1];
+			int mateId = (int) row[2];
+			BigInteger defeats = (BigInteger) row[3];
+			mapDefeat.put(mateId, defeats.intValue());
+			mapName.put(mateId, new String[]{firstName, lastName});
+		}
+		
+		// add teammates with > 0 wins
+		for (Object[] row : retWin) {
+			String firstName = (String) row[0];
+			String lastName = (String) row[1];
+			int mateId = (int) row[2];
+			int wins = ((BigInteger) row[3]).intValue();
+			int loss = mapDefeat.get(mateId) != null ? mapDefeat.get(mateId) : 0;
+			
+			Teammate tm = new Teammate(mateId, firstName, lastName, wins, loss, (double)wins / (double)(loss + wins));
+			teammates.add(tm);
+
+			mapDefeat.remove(mateId);
+		}
+		
+		// add 100% loser
+		for(Integer mateId : mapDefeat.keySet()){
+			Teammate tm = new Teammate(mateId, mapName.get(mateId)[0], mapName.get(mateId)[1], 0, mapDefeat.get(mateId), 0.0);
+			teammates.add(tm);
+		}
+		
+		// sort
+		teammates.sort(new Comparator<Teammate>() {
+			@Override
+			public int compare(Teammate t1, Teammate t2) {
+				return t1.getWins().compareTo(t2.getWins());
+			}
+		});
+		Collections.reverse(teammates);
+
+		return teammates;
 	}
 	
 	private String getPositionString(Locale locale) {
