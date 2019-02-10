@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
+import de.fpyttel.kronedyp.api.dao.entity.PlayerBE;
 import de.fpyttel.kronedyp.api.model.player.Player;
 import de.fpyttel.kronedyp.api.model.player.PlayerStats;
 import de.fpyttel.kronedyp.api.model.player.Teammate;
@@ -26,6 +27,11 @@ public class PlayerBF {
 	@Autowired
 	private EntityManager entityManager;
 
+	public List<Player> getAllPlayer(){
+		List<PlayerBE> allPlayer = entityManager.createNamedQuery("Player.getAll", PlayerBE.class).getResultList();
+		return Player.Mapper.map(allPlayer);
+	}
+	
 	@Cacheable("playerInfo")
 	public Player getPlayer(int playerId) {
 		// fetch base data

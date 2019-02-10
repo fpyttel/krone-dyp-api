@@ -25,6 +25,12 @@ public class PlayerController {
 
 	private Gson gson = new GsonBuilder().serializeNulls().create();
 
+	@RequestMapping(value = "/list", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
+	@ResponseBody
+	String getAllPlayer(HttpServletResponse response, HttpServletRequest request) {
+		return gson.toJson(playerBF.getAllPlayer());
+	}
+
 	@RequestMapping(value = "/{playerId}", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
 	@ResponseBody
 	String getPlayer(@PathVariable("playerId") Integer playerId, HttpServletResponse response,
@@ -45,18 +51,19 @@ public class PlayerController {
 			HttpServletRequest request) {
 		return gson.toJson(playerBF.getEloHistory(playerId));
 	}
-	
+
 	@RequestMapping(value = "/{playerId}/positionsHistory", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
 	@ResponseBody
 	String getPositionHistory(@PathVariable("playerId") Integer playerId, HttpServletResponse response,
 			HttpServletRequest request) {
 		return gson.toJson(playerBF.getPositionsHistory(playerId));
 	}
-	
+
 	@RequestMapping(value = "/{playerId}/teammates", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
 	@ResponseBody
 	String getTeammates(@PathVariable("playerId") Integer playerId, HttpServletResponse response,
 			HttpServletRequest request) {
 		return gson.toJson(playerBF.getTeammates(playerId));
 	}
+
 }

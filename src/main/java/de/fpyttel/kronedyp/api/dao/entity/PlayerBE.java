@@ -6,6 +6,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
@@ -21,6 +23,9 @@ import javax.persistence.Table;
 		@NamedNativeQuery(name = "Player.getPositionsHistory", query = "SELECT turnierid, platz FROM zzz_easy_tabelle WHERE spielerid = :playerId ORDER BY turnierid"),
 		@NamedNativeQuery(name = "Player.getTeammateWins", query = "SELECT p.vorname, p.nachname, tm1.mateid, COUNT(tm1.mateid) as wincount FROM teammates as tm1, playerlist as p, (SELECT tm.teamid as winteam FROM resultlist as r, teammates as tm WHERE ((r.teamid0 = tm.teamid AND r.teamid1 != -1) OR (r.teamid1 = tm.teamid AND r.teamid0 != -1)) AND tm.mateid = :playerId AND winnerid = tm.teamid ORDER BY r.id) as win WHERE tm1.mateid != :playerId AND win.winteam = tm1.teamid AND p.id = tm1.mateid GROUP BY tm1.mateid ORDER BY wincount DESC"),
 		@NamedNativeQuery(name = "Player.getTeammateLoss", query = "SELECT p.vorname, p.nachname, tm1.mateid, COUNT(tm1.mateid) as defeatcount FROM teammates as tm1, playerlist as p, ( SELECT tm.teamid as defeatteam FROM resultlist as r, teammates as tm WHERE ((r.teamid0 = tm.teamid AND r.teamid1 != -1) OR (r.teamid1 = tm.teamid AND r.teamid0 != -1)) AND tm.mateid = :playerId AND winnerid != tm.teamid ORDER BY r.id) as defeat WHERE tm1.mateid != :playerId AND defeat.defeatteam = tm1.teamid AND p.id = tm1.mateid GROUP BY tm1.mateid ORDER BY defeatcount DESC")
+})
+@NamedQueries({
+	@NamedQuery(name = "Player.getAll", query = "SELECT p FROM PlayerBE p")
 })
 public class PlayerBE {
 
