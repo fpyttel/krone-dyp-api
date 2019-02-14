@@ -16,8 +16,13 @@ gradlew clean build run
 ## endpoints
 
 http://localhost:8042/api/dyp/list
+
 http://localhost:8042/api/dyp/{dypId}
+
 ...
+
 http://localhost:8042/api/player/list
+
 http://localhost:8042/api/player/{playerId}
+
 ...
