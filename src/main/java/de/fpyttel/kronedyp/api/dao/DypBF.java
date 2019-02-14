@@ -1,6 +1,7 @@
 package de.fpyttel.kronedyp.api.dao;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
-import de.fpyttel.kronedyp.api.entity.dyp.Dyp;
-import de.fpyttel.kronedyp.api.entity.dyp.DypPlayer;
-import de.fpyttel.kronedyp.api.entity.dyp.DypResult;
-import de.fpyttel.kronedyp.api.entity.dyp.DypTeam;
-import de.fpyttel.kronedyp.api.model.Team;
-import de.fpyttel.kronedyp.api.model.TeamList;
+import de.fpyttel.kronedyp.api.model.dyp.Dyp;
+import de.fpyttel.kronedyp.api.model.dyp.DypPlayer;
+import de.fpyttel.kronedyp.api.model.dyp.DypResult;
+import de.fpyttel.kronedyp.api.model.dyp.DypTeam;
+import de.fpyttel.kronedyp.api.model.team.Team;
+import de.fpyttel.kronedyp.api.model.team.TeamList;
 
 @Component
 public class DypBF {
@@ -121,6 +122,52 @@ public class DypBF {
 		date = tmp[2] + "." + tmp[1] + "." + tmp[0];
 		
 		return date;
+	}
+	
+	public List<Object[]> getDypTeamElo(int id){
+		// fetch data
+		Query q = entityManager
+				.createNativeQuery("SELECT  t.platz, p.vorname, p.nachname, t.punkte, t.spielerid, s.skill FROM playerlist as p, zzz_easy_tabelle t, uskillzlist as s WHERE t.turnierid = :dypId AND t.spielerid = p.id AND s.userid = p.id AND s.spielid = 11 ORDER BY t.platz, t.teamid");
+		q.setParameter("dypId", id);
+		List<Object[]> ret = q.getResultList();
+
+		// calculate team ranks
+		TeamList teams = new TeamList();
+		int lastPlayer = -1;
+		String lastPlayerName = null;
+		double lastPlayerElo = -1;
+		for (Object[] row : ret){
+			int rank = (int) row[0];
+			String firstName = (String) row[1];
+			String lastName = (String) row[2];
+			int playerId = (int) row[4];
+			double elo = (double) row[5];
+			
+			if( lastPlayer < 0 ){
+				// new team 
+				lastPlayer = playerId;
+				lastPlayerElo = elo;
+				lastPlayerName = lastName;
+			}
+			else {
+				// add team
+				teams.add(new Team(lastPlayer, playerId, lastPlayerName, lastName, lastPlayerElo, elo, rank));
+				// reset
+				lastPlayer = -1;
+				lastPlayerElo = 0;
+			}
+		}
+		
+		Collections.sort(teams);
+		
+		// create model
+		List<Object[]> teamDataList = new ArrayList<>();
+		for(Team team : teams){
+			Object[] teamData = {team.getNameA() + " | " + team.getNameB(), team.getPlayerAElo(), team.getPlayerBElo()};
+			teamDataList.add(teamData);
+		}
+		
+		return teamDataList;
 	}
 	
 	private String parseDate(String dypDate){

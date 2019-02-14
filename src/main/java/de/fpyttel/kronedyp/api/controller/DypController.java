@@ -21,20 +21,24 @@ public class DypController {
 	@Autowired
 	private DypBF dypBF;
 
-	private Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+	private Gson gson = new GsonBuilder().serializeNulls().create();
 
 	@RequestMapping(value = "/{dypId}", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	String getDyp(@PathVariable("dypId") Integer dypId, HttpServletResponse response, HttpServletRequest request) {
-		response.addHeader("Access-Control-Allow-Origin", "*");
 		return gson.toJson(dypBF.getDyp(dypId));
 	}
 
 	@RequestMapping(value = "/list", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	String getDypList(HttpServletResponse response, HttpServletRequest request) {
-		response.addHeader("Access-Control-Allow-Origin", "*");
 		return gson.toJson(dypBF.getDypList());
 	}
 
+	@RequestMapping(value = "/{dypId}/teamElo", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	String getDypTeamElo(@PathVariable("dypId") Integer dypId, HttpServletResponse response, HttpServletRequest request) {
+		return gson.toJson(dypBF.getDypTeamElo(dypId));
+	}
+	
 }

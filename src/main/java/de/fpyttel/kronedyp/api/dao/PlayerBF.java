@@ -16,9 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
-import de.fpyttel.kronedyp.api.entity.player.Player;
-import de.fpyttel.kronedyp.api.entity.player.PlayerStats;
-import de.fpyttel.kronedyp.api.entity.player.Teammate;
+import de.fpyttel.kronedyp.api.dao.entity.PlayerBE;
+import de.fpyttel.kronedyp.api.model.player.Player;
+import de.fpyttel.kronedyp.api.model.player.PlayerStats;
+import de.fpyttel.kronedyp.api.model.player.Teammate;
 
 @Component
 public class PlayerBF {
@@ -26,11 +27,15 @@ public class PlayerBF {
 	@Autowired
 	private EntityManager entityManager;
 
+	public List<Player> getAllPlayer(){
+		List<PlayerBE> allPlayer = entityManager.createNamedQuery("Player.getAll", PlayerBE.class).getResultList();
+		return Player.Mapper.map(allPlayer);
+	}
+	
 	@Cacheable("playerInfo")
 	public Player getPlayer(int playerId) {
 		// fetch base data
-		Query q = entityManager.createNativeQuery(
-				"SELECT p.vorname, p.nachname, s.skill, (SELECT t.anmeldeschluss FROM playerlist as p, turnierlist as t, teammates as m, turnieranmeldung as a WHERE p.id = :playerId AND m.mateid = p.id AND t.id = a.turnierid AND a.teamid = m.teamid ORDER BY t.anmeldeschluss DESC LIMIT 1) as lastdyp FROM playerlist as p, uskillzlist as s WHERE p.id = :playerId AND s.userid = p.id LIMIT 1");
+		Query q = entityManager.createNamedQuery("Player.getInfo");
 		q.setParameter("playerId", playerId);
 		Object[] row = (Object[]) (q.getResultList().get(0));
 
@@ -44,29 +49,24 @@ public class PlayerBF {
 		lastDyp = tmp[2] + "." + tmp[1] + "." + tmp[0];
 
 		// fetch, get and calculate stats
-		q = entityManager.createNativeQuery(
-				"SELECT COUNT(*) FROM playerlist as p, turnierlist as t, teammates as m, turnieranmeldung as a WHERE p.id = :playerId AND m.mateid = p.id AND t.id = a.turnierid AND a.teamid = m.teamid AND t.turnierspielid = 11 ORDER BY t.anmeldeschluss DESC LIMIT 1");
+		q = entityManager.createNamedQuery("Player.getDyps");
 		q.setParameter("playerId", playerId);
-
 		BigInteger dyps = (BigInteger) q.getResultList().get(0);
 
-		q = entityManager.createNativeQuery(
-				"SELECT COUNT(*) FROM resultlist as r, teammates as tm, turnierlist as t WHERE ((r.teamid0 = tm.teamid AND r.teamid1 != -1) OR (r.teamid1 = tm.teamid AND r.teamid0 != -1)) AND tm.mateid = :playerId AND r.winnerid = tm.teamid AND r.turnierid = t.id AND t.turnierspielid = 11");
+		q = entityManager.createNamedQuery("Player.getWins");
 		q.setParameter("playerId", playerId);
-
 		BigInteger wins = (BigInteger) q.getResultList().get(0);
 
-		q = entityManager.createNativeQuery(
-				"SELECT COUNT(*) FROM resultlist as r, teammates as tm, turnierlist as t WHERE ((r.teamid0 = tm.teamid AND r.teamid1 != -1) OR (r.teamid1 = tm.teamid AND r.teamid0 != -1)) AND tm.mateid = :playerId AND r.winnerid != tm.teamid AND r.turnierid = t.id AND t.turnierspielid = 11");
+		q = entityManager.createNamedQuery("Player.getMatches");
 		q.setParameter("playerId", playerId);
 
-		BigInteger loss = (BigInteger) q.getResultList().get(0);
-		long matches = loss.longValue() + wins.longValue();
-		double effectivity = wins.doubleValue() / (double) matches;
+		BigInteger matches = (BigInteger) q.getResultList().get(0);
+		long loss = matches.longValue() - wins.longValue();
+		double effectivity = wins.doubleValue() / (double) matches.longValue();
 
 		// create model
-		PlayerStats playerStats = new PlayerStats(elo, effectivity, lastDyp, dyps.intValue(), (int) matches,
-				wins.intValue(), loss.intValue());
+		PlayerStats playerStats = new PlayerStats(elo, effectivity, lastDyp, dyps.intValue(), matches.intValue(),
+				wins.intValue(), (int)loss);
 		Player player = new Player(playerId, firstName, lastName, playerStats);
 
 		return player;
@@ -75,8 +75,7 @@ public class PlayerBF {
 	@Cacheable("positions")
 	public List<Object[]> getPositions(int playerId, Locale locale) {
 		// fetch data
-		Query q = entityManager
-				.createNativeQuery("SELECT platz, count(platz) FROM zzz_easy_tabelle WHERE spielerid = :playerId GROUP BY platz");
+		Query q = entityManager.createNamedQuery("Player.getPositions");
 		q.setParameter("playerId", playerId);
 		List<Object[]> ret = q.getResultList();
 
@@ -98,8 +97,7 @@ public class PlayerBF {
 	@Cacheable("eloHistory")
 	public List<Object[]> getEloHistory(int playerId) {
 		// fetch data
-		Query q = entityManager
-				.createNativeQuery("SELECT skillzuwachs FROM resultlist as r, teammates as tm, turnierlist as t WHERE ((r.teamid0 = tm.teamid AND r.teamid1 != -1) OR (r.teamid1 = tm.teamid AND r.teamid0 != -1)) AND tm.mateid = :playerId AND r.turnierid = t.id AND t.turnierspielid = 11 ORDER BY r.id");
+		Query q = entityManager.createNamedQuery("Player.getEloHistory");
 		q.setParameter("playerId", playerId);
 		List<String> ret = q.getResultList();
 
@@ -133,8 +131,7 @@ public class PlayerBF {
 	@Cacheable("positionsHistory")
 	public List<Object[]> getPositionsHistory(int playerId) {
 		// fetch data
-		Query q = entityManager
-				.createNativeQuery("SELECT turnierid, platz FROM zzz_easy_tabelle WHERE spielerid = :playerId ORDER BY turnierid");
+		Query q = entityManager.createNamedQuery("Player.getPositionsHistory");
 		q.setParameter("playerId", playerId);
 		List<Object[]> ret = q.getResultList();
 
@@ -155,11 +152,9 @@ public class PlayerBF {
 	@Cacheable("listAllPartner")
 	public List<Teammate> getTeammates(int playerId){
 		// fetch data
-		Query qWin = entityManager
-				.createNativeQuery("SELECT p.vorname, p.nachname, tm1.mateid, COUNT(tm1.mateid) as wincount FROM teammates as tm1, playerlist as p, (SELECT tm.teamid as winteam FROM resultlist as r, teammates as tm WHERE ((r.teamid0 = tm.teamid AND r.teamid1 != -1) OR (r.teamid1 = tm.teamid AND r.teamid0 != -1)) AND tm.mateid = :playerId AND winnerid = tm.teamid ORDER BY r.id) as win WHERE tm1.mateid != :playerId AND win.winteam = tm1.teamid AND p.id = tm1.mateid GROUP BY tm1.mateid ORDER BY wincount DESC");
+		Query qWin = entityManager.createNamedQuery("Player.getTeammateWins");
 		qWin.setParameter("playerId", playerId);
-		Query qDefeat = entityManager
-				.createNativeQuery("SELECT p.vorname, p.nachname, tm1.mateid, COUNT(tm1.mateid) as defeatcount FROM teammates as tm1, playerlist as p, ( SELECT tm.teamid as defeatteam FROM resultlist as r, teammates as tm WHERE ((r.teamid0 = tm.teamid AND r.teamid1 != -1) OR (r.teamid1 = tm.teamid AND r.teamid0 != -1)) AND tm.mateid = :playerId AND winnerid != tm.teamid ORDER BY r.id) as defeat WHERE tm1.mateid != :playerId AND defeat.defeatteam = tm1.teamid AND p.id = tm1.mateid GROUP BY tm1.mateid ORDER BY defeatcount DESC");
+		Query qDefeat = entityManager.createNamedQuery("Player.getTeammateLoss");
 		qDefeat.setParameter("playerId", playerId);
 		List<Object[]> retWin = qWin.getResultList();
 		List<Object[]> retDefeat = qDefeat.getResultList();
