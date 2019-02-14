@@ -117,8 +117,6 @@ public class PlayerBF {
 				if (vals[0].equals(playerStr)) {
 					elo += Double.parseDouble(vals[1]);
 					Object[] eloData = {matchCounter++, elo};
-					eloData[0] = matchCounter++;
-					eloData[1] = elo;
 					eloList.add(eloData);
 					break;
 				}
