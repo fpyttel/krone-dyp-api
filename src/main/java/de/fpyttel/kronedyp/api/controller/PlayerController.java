@@ -65,5 +65,11 @@ public class PlayerController {
 			HttpServletRequest request) {
 		return gson.toJson(playerBF.getTeammates(playerId));
 	}
+	
+	@RequestMapping(value = "/scoreboard", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
+	@ResponseBody
+	String getScoreboard(HttpServletResponse response, HttpServletRequest request) {
+		return gson.toJson(playerBF.getScoreboard());
+	}
 
 }

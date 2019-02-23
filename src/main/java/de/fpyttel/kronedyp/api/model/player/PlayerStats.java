@@ -13,13 +13,14 @@ public class PlayerStats implements Serializable {
 	private Integer matches;
 	private Integer wins;
 	private Integer loss;
+	private Integer points;
 
 	public PlayerStats() {
 		super();
 	}
 
 	public PlayerStats(Double elo, Double effectivity, String lastDypDate, Integer dyps, Integer matches, Integer wins,
-			Integer loss) {
+			Integer loss, Integer points) {
 		super();
 		this.elo = elo;
 		this.effectivity = effectivity;
@@ -28,6 +29,7 @@ public class PlayerStats implements Serializable {
 		this.matches = matches;
 		this.wins = wins;
 		this.loss = loss;
+		this.points = points;
 	}
 
 	public Double getElo() {
@@ -84,6 +86,14 @@ public class PlayerStats implements Serializable {
 
 	public void setLoss(Integer loss) {
 		this.loss = loss;
+	}
+
+	public Integer getPoints() {
+		return points;
+	}
+
+	public void setPoints(Integer points) {
+		this.points = points;
 	}
 
 }

@@ -1,5 +1,6 @@
 package de.fpyttel.kronedyp.api.dao;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,11 +28,11 @@ public class PlayerBF {
 	@Autowired
 	private EntityManager entityManager;
 
-	public List<Player> getAllPlayer(){
+	public List<Player> getAllPlayer() {
 		List<PlayerBE> allPlayer = entityManager.createNamedQuery("Player.getAll", PlayerBE.class).getResultList();
 		return Player.Mapper.map(allPlayer);
 	}
-	
+
 	@Cacheable("playerInfo")
 	public Player getPlayer(int playerId) {
 		// fetch base data
@@ -64,14 +65,17 @@ public class PlayerBF {
 		long loss = matches.longValue() - wins.longValue();
 		double effectivity = wins.doubleValue() / (double) matches.longValue();
 
+		q = entityManager.createNamedQuery("Player.getPoints").setParameter("playerId", playerId);
+		BigDecimal points = (BigDecimal) q.getSingleResult();
+
 		// create model
 		PlayerStats playerStats = new PlayerStats(elo, effectivity, lastDyp, dyps.intValue(), matches.intValue(),
-				wins.intValue(), (int)loss);
+				wins.intValue(), (int) loss, points.intValue());
 		Player player = new Player(playerId, firstName, lastName, playerStats);
 
 		return player;
 	}
-	
+
 	@Cacheable("positions")
 	public List<Object[]> getPositions(int playerId, Locale locale) {
 		// fetch data
@@ -93,7 +97,7 @@ public class PlayerBF {
 
 		return scoreList;
 	}
-	
+
 	@Cacheable("eloHistory")
 	public List<Object[]> getEloHistory(int playerId) {
 		// fetch data
@@ -116,7 +120,7 @@ public class PlayerBF {
 				String[] vals = t.split(":");
 				if (vals[0].equals(playerStr)) {
 					elo += Double.parseDouble(vals[1]);
-					Object[] eloData = {matchCounter++, elo};
+					Object[] eloData = { matchCounter++, elo };
 					eloList.add(eloData);
 					break;
 				}
@@ -125,7 +129,7 @@ public class PlayerBF {
 
 		return eloList;
 	}
-	
+
 	@Cacheable("positionsHistory")
 	public List<Object[]> getPositionsHistory(int playerId) {
 		// fetch data
@@ -136,19 +140,19 @@ public class PlayerBF {
 		// create model
 		List<Object[]> positionList = new ArrayList<>();
 		int i = 0;
-		for (Object[] dyp: ret) {
-			int dypId = (int)dyp[0];
-			int platz = (int)dyp[1];
-			
-			Object[] positionData = {dypId, platz};
+		for (Object[] dyp : ret) {
+			int dypId = (int) dyp[0];
+			int platz = (int) dyp[1];
+
+			Object[] positionData = { dypId, platz };
 			positionList.add(positionData);
 		}
 
 		return positionList;
 	}
-	
+
 	@Cacheable("listAllPartner")
-	public List<Teammate> getTeammates(int playerId){
+	public List<Teammate> getTeammates(int playerId) {
 		// fetch data
 		Query qWin = entityManager.createNamedQuery("Player.getTeammateWins");
 		qWin.setParameter("playerId", playerId);
@@ -169,9 +173,9 @@ public class PlayerBF {
 			int mateId = (int) row[2];
 			BigInteger defeats = (BigInteger) row[3];
 			mapDefeat.put(mateId, defeats.intValue());
-			mapName.put(mateId, new String[]{firstName, lastName});
+			mapName.put(mateId, new String[] { firstName, lastName });
 		}
-		
+
 		// add teammates with > 0 wins
 		for (Object[] row : retWin) {
 			String firstName = (String) row[0];
@@ -179,19 +183,20 @@ public class PlayerBF {
 			int mateId = (int) row[2];
 			int wins = ((BigInteger) row[3]).intValue();
 			int loss = mapDefeat.get(mateId) != null ? mapDefeat.get(mateId) : 0;
-			
-			Teammate tm = new Teammate(mateId, firstName, lastName, wins, loss, (double)wins / (double)(loss + wins));
+
+			Teammate tm = new Teammate(mateId, firstName, lastName, wins, loss, (double) wins / (double) (loss + wins));
 			teammates.add(tm);
 
 			mapDefeat.remove(mateId);
 		}
-		
+
 		// add 100% loser
-		for(Integer mateId : mapDefeat.keySet()){
-			Teammate tm = new Teammate(mateId, mapName.get(mateId)[0], mapName.get(mateId)[1], 0, mapDefeat.get(mateId), 0.0);
+		for (Integer mateId : mapDefeat.keySet()) {
+			Teammate tm = new Teammate(mateId, mapName.get(mateId)[0], mapName.get(mateId)[1], 0, mapDefeat.get(mateId),
+					0.0);
 			teammates.add(tm);
 		}
-		
+
 		// sort
 		teammates.sort(new Comparator<Teammate>() {
 			@Override
@@ -203,9 +208,33 @@ public class PlayerBF {
 
 		return teammates;
 	}
-	
+
+	public List<Player> getScoreboard() {
+		// fetch data
+		Query q = entityManager.createNamedQuery("Player.getScoreboard");
+		List<Object[]> ret = q.getResultList();
+
+		// create model
+		final List<Player> scoreboard = new ArrayList<>();
+
+		// prepare data
+		for (Object[] row : ret) {
+			int playerId = (int) row[0];
+			String firstName = (String) row[1];
+			String lastName = (String) row[2];
+			BigDecimal points = (BigDecimal) row[3];
+			BigInteger dyps = (BigInteger) row[4];
+			double elo = (double) row[5];
+
+			scoreboard.add(new Player(playerId, firstName, lastName,
+					new PlayerStats(elo, null, null, dyps.intValue(), null, null, null, points.intValue())));
+		}
+
+		return scoreboard;
+	}
+
 	private String getPositionString(Locale locale) {
-		if(locale.getLanguage().equals(new Locale("de").getLanguage())) {
+		if (locale.getLanguage().equals(new Locale("de").getLanguage())) {
 			return "Platz";
 		} else {
 			return "Position";
