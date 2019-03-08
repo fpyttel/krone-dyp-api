@@ -68,8 +68,8 @@ public class PlayerController {
 	
 	@RequestMapping(value = "/scoreboard", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
 	@ResponseBody
-	String getScoreboard(HttpServletResponse response, HttpServletRequest request) {
-		return gson.toJson(playerBF.getScoreboard());
+	String getScoreboard(@RequestParam(name = "year", required = false) final Integer year, HttpServletResponse response, HttpServletRequest request) {
+		return gson.toJson(playerBF.getScoreboard(year));
 	}
 
 }

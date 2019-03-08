@@ -209,9 +209,14 @@ public class PlayerBF {
 		return teammates;
 	}
 
-	public List<Player> getScoreboard() {
+	public List<Player> getScoreboard(final Integer year) {
 		// fetch data
-		Query q = entityManager.createNamedQuery("Player.getScoreboard");
+		Query q;
+		if (year != null) {
+			q = entityManager.createNamedQuery("Player.getScoreboardByYear").setParameter("year", String.valueOf(year));
+		} else {
+			q = entityManager.createNamedQuery("Player.getScoreboard");
+		}
 		List<Object[]> ret = q.getResultList();
 
 		// create model
