@@ -18,6 +18,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import de.fpyttel.kronedyp.api.dao.entity.PlayerBE;
+import de.fpyttel.kronedyp.api.model.player.DypTeammate;
 import de.fpyttel.kronedyp.api.model.player.Player;
 import de.fpyttel.kronedyp.api.model.player.PlayerStats;
 import de.fpyttel.kronedyp.api.model.player.Teammate;
@@ -209,6 +210,32 @@ public class PlayerBF {
 		return teammates;
 	}
 
+	public List<DypTeammate> getDyps(final int playerId) {
+		// fetch data
+		final Query qDyps = entityManager.createNamedQuery("Player.getDypTeammates");
+		qDyps.setParameter("playerId", playerId);
+
+		// create model
+		final List<DypTeammate> dypTeammates = new ArrayList<>();
+
+		// fetch data
+		final List<Object[]> ret = qDyps.getResultList();
+
+		// add data
+		for (final Object[] row : ret) {
+			String date = (String) row[0];
+			int dypId = (int) row[1];
+			int mateId = (int) row[2];
+			String firstName = (String) row[3];
+			String lastName = (String) row[4];
+			int position = (int) row[5];
+
+			dypTeammates.add(new DypTeammate(dypId, parseDate(date), mateId, firstName, lastName, position));
+		}
+
+		return dypTeammates;
+	}
+
 	public List<Player> getScoreboard(final Integer year) {
 		// fetch data
 		Query q;
@@ -244,5 +271,13 @@ public class PlayerBF {
 		} else {
 			return "Position";
 		}
+	}
+
+	private String parseDate(String dypDate) {
+		String date = dypDate;
+		date = date.split("-")[0];
+		String[] tmp = date.split("/");
+		date = tmp[2] + "." + tmp[1] + "." + tmp[0];
+		return date;
 	}
 }

@@ -41,4 +41,10 @@ public class DypController {
 		return gson.toJson(dypBF.getDypTeamElo(dypId));
 	}
 	
+	@RequestMapping(value = "/{dypId}/stats", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	String getDypStatistic(@PathVariable("dypId") Integer dypId, HttpServletResponse response, HttpServletRequest request) {
+		return gson.toJson(dypBF.getDypStatisitc(dypId));
+	}
+	
 }

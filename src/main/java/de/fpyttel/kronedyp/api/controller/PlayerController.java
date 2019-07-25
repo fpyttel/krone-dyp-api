@@ -66,6 +66,13 @@ public class PlayerController {
 		return gson.toJson(playerBF.getTeammates(playerId));
 	}
 	
+	@RequestMapping(value = "/{playerId}/dyps", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
+	@ResponseBody
+	String getDyps(@PathVariable("playerId") Integer playerId, HttpServletResponse response,
+			HttpServletRequest request) {
+		return gson.toJson(playerBF.getDyps(playerId));
+	}
+	
 	@RequestMapping(value = "/scoreboard", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
 	@ResponseBody
 	String getScoreboard(@RequestParam(name = "year", required = false) final Integer year, HttpServletResponse response, HttpServletRequest request) {

@@ -34,7 +34,21 @@ import javax.persistence.Table;
 				"	AND t.turnierid = tl.id\r\n" + 
 				"	AND tl.anmeldeschluss BETWEEN CONCAT(:year,'/01/01-00:00:00') AND CONCAT(:year,'2018/12/31-23:59:59')\r\n" + 
 				"GROUP BY p.id\r\n" + 
-				"ORDER BY points DESC")
+				"ORDER BY points DESC"),
+		@NamedNativeQuery(name = "Player.getDypTeammates", query = "SELECT t.anmeldeschluss as date,  t.id as dyp_id, m2.mateid as teammate_id, pl.vorname, pl.nachname, et.platz as pos\r\n" + 
+				"FROM playerlist as p, turnierlist as t, teammates as m, turnieranmeldung as a, teammates as m2, zzz_easy_tabelle as et, playerlist as pl\r\n" + 
+				"WHERE\r\n" + 
+				"	p.id = :playerId\r\n" + 
+				"	AND m.mateid = p.id\r\n" + 
+				"	AND t.id = a.turnierid\r\n" + 
+				"	AND a.teamid = m.teamid\r\n" + 
+				"	AND t.turnierspielid = 11\r\n" + 
+				"	AND m2.teamid = m.teamid\r\n" + 
+				"	AND m2.mateid != :playerId\r\n" + 
+				"	AND t.id = et.turnierid\r\n" + 
+				"	AND et.spielerid = m2.mateid\r\n" + 
+				"	AND m2.mateid = pl.id\r\n" + 
+				"ORDER BY t.anmeldeschluss DESC")
 })
 @NamedQueries({
 	@NamedQuery(name = "Player.getAll", query = "SELECT p FROM PlayerBE p")
