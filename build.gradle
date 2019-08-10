@@ -22,7 +22,7 @@ dependencies {
 	compile 'org.springframework.boot:spring-boot-starter-cache:2.0.3.RELEASE'
 	
 	compile 'net.sf.ehcache:ehcache:2.10.2.2.21'
-	compile 'mysql:mysql-connector-java:5.1.+'
+	compile 'mysql:mysql-connector-java:5.1.47'
 	compile group: 'org.eclipse.persistence', name: 'javax.persistence', version: '2.1.1'
 	compile 'com.google.code.gson:gson:2.+'
 	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
