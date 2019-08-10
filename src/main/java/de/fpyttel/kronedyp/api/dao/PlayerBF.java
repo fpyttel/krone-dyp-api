@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.management.Query;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -91,7 +91,7 @@ public class PlayerBF {
 			BigInteger count = (BigInteger) row[1];
 
 			Object[] score = new Object[2];
-			score[0] = position + ". " + getPositionString(locale);
+			score[0] = position + ".";
 			score[1] = count;
 			scoreList.add(score);
 		}
